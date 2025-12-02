@@ -215,6 +215,13 @@ app.post('/generate', (req, res) => {
 });
 
 // サーバー起動
-app.listen(PORT, () => {
-  console.log(`http://localhost:${PORT} で起動中`);
-});
+// ローカル開発のときだけポートを開く
+if (!process.env.VERCEL) {
+  const port = process.env.PORT || 3000;
+  app.listen(port, () => {
+    console.log(`Server started on http://localhost:${port}`);
+  });
+}
+
+// Vercel 用に handler として app をエクスポート
+module.exports = app;
