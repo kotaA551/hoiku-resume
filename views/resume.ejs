@@ -351,6 +351,8 @@
 /* A4プレビュー用カード（PC基準） */
 .preview-card {
   font-weight: 400;
+  border: 1px solid #e2e2e2;
+  border-radius: 8px;
   background: #fff;
   color: #000;
   font-size: 15px;
@@ -1078,7 +1080,7 @@
                 </div>
               </div>
 
-              <!-- 学歴・職歴 10行（既存のテーブルをそのまま利用） -->
+              <!-- 学歴・職歴 -->
               <div class="jis-section">
                 <table class="jis-table">
                   <thead>
@@ -1088,19 +1090,11 @@
                       <th class="jis-col-text">学歴・職歴</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <% for (let i = 1; i <= 10; i++) { %>
-                    <tr>
-                      <td id="pv-edu-year-<%= i %>"></td>
-                      <td id="pv-edu-month-<%= i %>"></td>
-                      <td id="pv-edu-text-<%= i %>" class="preview-empty"></td>
-                    </tr>
-                    <% } %>
-                  </tbody>
+                  <tbody id="edu-preview-body"></tbody>
                 </table>
               </div>
 
-              <!-- 免許・資格 6行 -->
+              <!-- 免許・資格 -->
               <div class="jis-section">
                 <table class="jis-table">
                   <thead>
@@ -1110,15 +1104,7 @@
                       <th class="jis-col-text">免許・資格</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <% for (let i = 1; i <= 6; i++) { %>
-                    <tr>
-                      <td id="pv-lic-year-<%= i %>"></td>
-                      <td id="pv-lic-month-<%= i %>"></td>
-                      <td id="pv-lic-text-<%= i %>" class="preview-empty"></td>
-                    </tr>
-                    <% } %>
-                  </tbody>
+                  <tbody id="lic-preview-body"></tbody>
                 </table>
               </div>
 
@@ -1311,42 +1297,51 @@
               <p class="note">
                 1行につき1つずつ入力してください。<br />
                 例）「2018年 3月 市立△△中学校卒業」<br />
-                最大10行までプレビューに表示されます。
+                行数に制限はありません。「行を追加」ボタンから増やせます。
               </p>
 
-              <% for (let i = 1; i <= 10; i++) { %>
-              <div class="field-row-edu">
-                <div class="field field--year">
-                  <label for="edu-year-<%= i %>">年</label>
-                  <input
-                    type="text"
-                    id="edu-year-<%= i %>"
-                    name="edu_year_<%= i %>"
-                    placeholder="<%= i === 1 ? '2018' : '' %>"
-                  />
-                </div>
+              <!-- 行が入っていくコンテナ -->
+              <div id="edu-container"></div>
 
-                <div class="field field--month">
-                  <label for="edu-month-<%= i %>">月</label>
-                  <input
-                    type="text"
-                    id="edu-month-<%= i %>"
-                    name="edu_month_<%= i %>"
-                    placeholder="<%= i === 1 ? '3' : '' %>"
-                  />
-                </div>
+              <!-- 行を追加ボタン -->
+              <button type="button" id="add-edu-btn" class="generate-pr-btn">
+                ＋ 行を追加
+              </button>
 
-                <div class="field field--wide">
-                  <label for="edu-text-<%= i %>">学歴・職歴</label>
-                  <input
-                    type="text"
-                    id="edu-text-<%= i %>"
-                    name="edu_text_<%= i %>"
-                    placeholder="<%= i === 1 ? '市立△△中学校卒業' : '' %>"
-                  />
+              <!-- 入力行のテンプレート -->
+              <template id="edu-template">
+                <div class="field-row-edu edu-row">
+                  <div class="field field--year">
+                    <label>年</label>
+                    <input
+                      type="text"
+                      class="edu-year"
+                      name="edu_year[]"
+                      placeholder="2018"
+                    />
+                  </div>
+
+                  <div class="field field--month">
+                    <label>月</label>
+                    <input
+                      type="text"
+                      class="edu-month"
+                      name="edu_month[]"
+                      placeholder="3"
+                    />
+                  </div>
+
+                  <div class="field field--wide">
+                    <label>学歴・職歴</label>
+                    <input
+                      type="text"
+                      class="edu-text"
+                      name="edu_text[]"
+                      placeholder="市立△△中学校卒業"
+                    />
+                  </div>
                 </div>
-              </div>
-              <% } %>
+              </template>
             </div>
 
             <!-- STEP 3: 免許・資格 -->
@@ -1355,42 +1350,51 @@
               <p class="note">
                 1行につき1つずつ入力してください。<br />
                 例）「2013年 4月 実用英語技能検定3級合格」<br />
-                最大6行までプレビューに表示されます。
+                行数に制限はありません。
               </p>
 
-              <% for (let i = 1; i <= 6; i++) { %>
-              <div class="field-row-edu">
-                <div class="field field--year">
-                  <label for="lic-year-<%= i %>">年</label>
-                  <input
-                    type="text"
-                    id="lic-year-<%= i %>"
-                    name="lic_year_<%= i %>"
-                    placeholder="<%= i === 1 ? '2013' : '' %>"
-                  />
-                </div>
+              <!-- 行が入っていくコンテナ -->
+              <div id="lic-container"></div>
 
-                <div class="field field--month">
-                  <label for="lic-month-<%= i %>">月</label>
-                  <input
-                    type="text"
-                    id="lic-month-<%= i %>"
-                    name="lic_month_<%= i %>"
-                    placeholder="<%= i === 1 ? '4' : '' %>"
-                  />
-                </div>
+              <!-- 行を追加ボタン -->
+              <button type="button" id="add-lic-btn" class="generate-pr-btn">
+                ＋ 行を追加
+              </button>
 
-                <div class="field field--wide">
-                  <label for="lic-text-<%= i %>">資格・検定など</label>
-                  <input
-                    type="text"
-                    id="lic-text-<%= i %>"
-                    name="lic_text_<%= i %>"
-                    placeholder="<%= i === 1 ? '実用英語技能検定3級合格' : '' %>"
-                  />
+              <!-- 入力行テンプレート -->
+              <template id="lic-template">
+                <div class="field-row-edu lic-row">
+                  <div class="field field--year">
+                    <label>年</label>
+                    <input
+                      type="text"
+                      class="lic-year"
+                      name="lic_year[]"
+                      placeholder="2013"
+                    />
+                  </div>
+
+                  <div class="field field--month">
+                    <label>月</label>
+                    <input
+                      type="text"
+                      class="lic-month"
+                      name="lic_month[]"
+                      placeholder="4"
+                    />
+                  </div>
+
+                  <div class="field field--wide">
+                    <label>資格・検定など</label>
+                    <input
+                      type="text"
+                      class="lic-text"
+                      name="lic_text[]"
+                      placeholder="実用英語技能検定3級合格"
+                    />
+                  </div>
                 </div>
-              </div>
-              <% } %>
+              </template>
             </div>
 
             <!-- STEP 4: 志望動機（自動生成） -->
@@ -1982,90 +1986,123 @@ updateEmailPreview();
 })();
 
       // ─────────────────────────
-      // 学歴・職歴（10行） → プレビュー
+// ─────────────────────────
+// 学歴・職歴（無制限） → プレビュー
+// ─────────────────────────
+(function () {
+  const eduContainer = document.getElementById('edu-container');
+  const eduTemplate = document.getElementById('edu-template');
+  const eduPreviewBody = document.getElementById('edu-preview-body');
+  const addEduBtn = document.getElementById('add-edu-btn');
+
+  if (!eduContainer || !eduTemplate || !eduPreviewBody || !addEduBtn) return;
+
+  function syncEduPreview() {
+    eduPreviewBody.innerHTML = '';
+
+    const rows = eduContainer.querySelectorAll('.edu-row');
+    rows.forEach((row) => {
+      const year = row.querySelector('.edu-year')?.value.trim() || '';
+      const month = row.querySelector('.edu-month')?.value.trim() || '';
+      const text = row.querySelector('.edu-text')?.value.trim() || '';
+
+      // 何も書いてない行はスキップしてもOK（必要ならコメントアウト）
+      if (!year && !month && !text) return;
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${year}</td>
+        <td>${month}</td>
+        <td>${text}</td>
+      `;
+      eduPreviewBody.appendChild(tr);
+    });
+
+    // 全部空なら、1行だけ空行を出しておく（なくてもよければこの if ごと消してOK）
+    if (!eduPreviewBody.children.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td></td><td></td><td class="preview-empty"></td>`;
+      eduPreviewBody.appendChild(tr);
+    }
+  }
+
+  function addEduRow() {
+    const frag = eduTemplate.content.cloneNode(true);
+    eduContainer.appendChild(frag);
+    syncEduPreview();
+  }
+
+  // 入力されたら都度プレビュー更新（イベント委譲）
+  eduContainer.addEventListener('input', (e) => {
+    if (e.target.matches('.edu-year, .edu-month, .edu-text')) {
+      syncEduPreview();
+    }
+  });
+
+  addEduBtn.addEventListener('click', addEduRow);
+
+  // 最初の1行
+  addEduRow();
+})();
+
+
       // ─────────────────────────
-      (function () {
-        const maxRows = 10;
+// ─────────────────────────
+// 免許・資格（無制限） → プレビュー
+// ─────────────────────────
+(function () {
+  const licContainer = document.getElementById('lic-container');
+  const licTemplate = document.getElementById('lic-template');
+  const licPreviewBody = document.getElementById('lic-preview-body');
+  const addLicBtn = document.getElementById('add-lic-btn');
 
-        function updateRow(i) {
-          const yearInput = document.getElementById(`edu-year-${i}`);
-          const monthInput = document.getElementById(`edu-month-${i}`);
-          const textInput = document.getElementById(`edu-text-${i}`);
+  if (!licContainer || !licTemplate || !licPreviewBody || !addLicBtn) return;
 
-          const pvYear = document.getElementById(`pv-edu-year-${i}`);
-          const pvMonth = document.getElementById(`pv-edu-month-${i}`);
-          const pvText = document.getElementById(`pv-edu-text-${i}`);
+  function syncLicPreview() {
+    licPreviewBody.innerHTML = '';
 
-          if (!pvYear || !pvMonth || !pvText) return;
+    const rows = licContainer.querySelectorAll('.lic-row');
+    rows.forEach((row) => {
+      const year = row.querySelector('.lic-year')?.value.trim() || '';
+      const month = row.querySelector('.lic-month')?.value.trim() || '';
+      const text = row.querySelector('.lic-text')?.value.trim() || '';
 
-          const year = yearInput ? yearInput.value.trim() : '';
-          const month = monthInput ? monthInput.value.trim() : '';
-          const text = textInput ? textInput.value.trim() : '';
+      if (!year && !month && !text) return;
 
-          pvYear.textContent = year;
-          pvMonth.textContent = month;
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${year}</td>
+        <td>${month}</td>
+        <td>${text}</td>
+      `;
+      licPreviewBody.appendChild(tr);
+    });
 
-          if (text) {
-            pvText.textContent = text;
-            pvText.classList.remove('preview-empty');
-          } else {
-            pvText.textContent = '';
-            pvText.classList.add('preview-empty');
-          }
-        }
+    if (!licPreviewBody.children.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `<td></td><td></td><td class="preview-empty"></td>`;
+      licPreviewBody.appendChild(tr);
+    }
+  }
 
-        for (let i = 1; i <= maxRows; i++) {
-          ['year', 'month', 'text'].forEach((kind) => {
-            const input = document.getElementById(`edu-${kind}-${i}`);
-            if (!input) return;
-            input.addEventListener('input', () => updateRow(i));
-          });
-          updateRow(i);
-        }
-      })();
+  function addLicRow() {
+    const frag = licTemplate.content.cloneNode(true);
+    licContainer.appendChild(frag);
+    syncLicPreview();
+  }
 
-      // ─────────────────────────
-      // 免許・資格（6行） → プレビュー
-      // ─────────────────────────
-      (function () {
-        const maxRows = 6;
+  licContainer.addEventListener('input', (e) => {
+    if (e.target.matches('.lic-year, .lic-month, .lic-text')) {
+      syncLicPreview();
+    }
+  });
 
-        function updateRow(i) {
-          const yearInput = document.getElementById(`lic-year-${i}`);
-          const monthInput = document.getElementById(`lic-month-${i}`);
-          const textInput = document.getElementById(`lic-text-${i}`);
+  addLicBtn.addEventListener('click', addLicRow);
 
-          const pvYear = document.getElementById(`pv-lic-year-${i}`);
-          const pvMonth = document.getElementById(`pv-lic-month-${i}`);
-          const pvText = document.getElementById(`pv-lic-text-${i}`);
+  // 最初の1行
+  addLicRow();
+})();
 
-          if (!pvYear || !pvMonth || !pvText) return;
-
-          const year = yearInput ? yearInput.value.trim() : '';
-          const month = monthInput ? monthInput.value.trim() : '';
-          const text = textInput ? textInput.value.trim() : '';
-
-          pvYear.textContent = year;
-          pvMonth.textContent = month;
-
-          if (text) {
-            pvText.textContent = text;
-            pvText.classList.remove('preview-empty');
-          } else {
-            pvText.textContent = '';
-            pvText.classList.add('preview-empty');
-          }
-        }
-
-        for (let i = 1; i <= maxRows; i++) {
-          ['year', 'month', 'text'].forEach((kind) => {
-            const input = document.getElementById(`lic-${kind}-${i}`);
-            if (!input) return;
-            input.addEventListener('input', () => updateRow(i));
-          });
-          updateRow(i);
-        }
-      })();
 
       // ─────────────────────────
       // 志望動機（チェックボックス → 自動生成 + テキスト → プレビュー）
