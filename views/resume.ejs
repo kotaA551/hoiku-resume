@@ -1687,42 +1687,46 @@
         });
       })();
 
-      // A3 横 1 枚 PDF レイアウト用 DOM を作る
-      // forPreview: true のときは右側プレビュー用（縮小表示）にする
-      function buildPdfLayout(forPreview = false) {
-        const pdfRoot = document.getElementById('pdf-root');
-        const page1 = document.querySelector('#preview-root .preview-card.preview.page-1');
-        const page2 = document.querySelector('#preview-root .preview-card.preview.page-2');
 
-        if (!pdfRoot || !page1 || !page2) return null;
+      // ───────── A3 横1枚レイアウトを PDF用に一時生成する ─────────
+function createA3LayoutForPdf() {
+  // プレビューの1ページ目・2ページ目を取得
+  const page1 = document.querySelector('#preview-root .preview-card.preview.page-1');
+  const page2 = document.querySelector('#preview-root .preview-card.preview.page-2');
 
-        // 中身をリセット
-        pdfRoot.innerHTML = '';
+  if (!page1 || !page2) return null;
 
-        // プレビュー用フラグでクラス切り替え
-        pdfRoot.classList.toggle('is-preview', !!forPreview);
+  // 画面外に置く一時コンテナ
+  const container = document.createElement('div');
+  container.id = 'pdf-temp-root';
+  container.style.position = 'fixed';
+  container.style.left = '-9999px'; // 画面外
+  container.style.top = '0';
+  container.style.width = '1400px'; // 描画用の幅（適当でOK）
+  container.style.background = '#ffffff';
+  container.style.zIndex = '-1';
 
-        // A3 横 1 枚の枠
-        const wrapper = document.createElement('div');
-        wrapper.className = 'pdf-a3-page';
+  // A3ページ本体（CSSの .pdf-a3-page をそのまま使う）
+  const wrapper = document.createElement('div');
+  wrapper.className = 'pdf-a3-page';
 
-        const left = document.createElement('div');
-        left.className = 'pdf-a3-left';
+  const left = document.createElement('div');
+  left.className = 'pdf-a3-left';
+  left.appendChild(page1.cloneNode(true));  // プレビュー1ページ目のクローン
 
-        const right = document.createElement('div');
-        right.className = 'pdf-a3-right';
+  const right = document.createElement('div');
+  right.className = 'pdf-a3-right';
+  right.appendChild(page2.cloneNode(true)); // プレビュー2ページ目のクローン
 
-        // プレビューの page-1 / page-2 をクローンして左右に並べる
-        left.appendChild(page1.cloneNode(true));
-        right.appendChild(page2.cloneNode(true));
+  wrapper.appendChild(left);
+  wrapper.appendChild(right);
+  container.appendChild(wrapper);
 
-        wrapper.appendChild(left);
-        wrapper.appendChild(right);
-        pdfRoot.appendChild(wrapper);
+  // bodyに一時的に追加
+  document.body.appendChild(container);
 
-        return pdfRoot;
-      }
-
+  return container;
+}
 
       // ─────────────────────────
       // ステップ制ロジック（6ステップ）
@@ -1758,11 +1762,6 @@
               el.classList.add('step--active');
             }
           });
-
-          // ステップ6を表示するタイミングで A3 レイアウトを再生成
-          if (currentStep === 6) {
-            buildPdfLayout(true);
-          }
 
           // 前へボタン
           if (prevBtn) prevBtn.disabled = currentStep === 1;
@@ -2533,7 +2532,7 @@
         dateEl.textContent = `${y}年${m}月${day}日現在`;
       })();
 
-      // ───── PDF ダウンロード（履歴書） ─────
+      // ───── PDF ダウンロード（履歴書：A3横1枚） ─────
       const resumeForm = document.getElementById('resume-form');
       const resumePdfButton = document.getElementById('btn-submit-resume');
 
@@ -2541,41 +2540,42 @@
         resumeForm.addEventListener('submit', function (e) {
           e.preventDefault(); // サーバー送信を止める
 
-          // 1) PDF用の等倍レイアウトを作る（forPreview = false）
-          const pdfRoot = buildPdfLayout(false);
-          if (!pdfRoot) {
+          // A3横1枚レイアウトを画面外に一時生成
+          const pdfContainer = createA3LayoutForPdf();
+          if (!pdfContainer) {
             alert('PDFレイアウトの生成に失敗しました。');
             return;
           }
 
           const opt = {
-            margin:       0,
-            filename:     'rirekisyo.pdf',
-            image:        { type: 'jpeg', quality: 0.95 },
-            html2canvas:  { scale: 2, useCORS: true },
+            margin: 0,
+            filename: 'rirekisyo.pdf',
+            image: { type: 'jpeg', quality: 0.95 },
+            html2canvas: { scale: 2, useCORS: true },
             jsPDF: {
               unit: 'pt',
-              format: [1190.52, 841.92], // A3横
+              // A3横
+              format: [1190.52, 841.92],
               orientation: 'landscape'
-            },
+            }
           };
 
-          // 2) PDF作成 → 終わったらまたプレビュー用に縮小し直す
           html2pdf()
-            .from(pdfRoot)
+            .from(pdfContainer)
             .set(opt)
             .save()
             .then(() => {
-              // 右側プレビューを元の縮小版に戻す
-              buildPdfLayout(true);
+              // 使い終わった一時コンテナを削除
+              pdfContainer.remove();
             });
         });
       }
+
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"></script>
 
-    
+
     <!-- PDF生成用の見えないコンテナ -->
     <div id="pdf-root" style="position:fixed; left:-9999px; top:-9999px;"></div>
 
