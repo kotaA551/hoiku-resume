@@ -2762,9 +2762,7 @@
             if (!sentences.length || !prTextarea) return;
 
             const text =
-              'これまでの保育経験の中で、' +
-              sentences.join(' ') +
-              ' といった点を大切にしてまいりました。貴園でも子どもたち一人ひとりに寄り添いながら、保護者や職員の方々と協力し、安心して過ごせる環境づくりに貢献したいと考えております。';
+              'これまでの保育経験の中で、' + sentences.join(' ')
 
             prTextarea.value = text;
             prTextarea.dispatchEvent(new Event('input'));
